@@ -1,0 +1,64 @@
+% Microwave Transistor Amplifiers Analysis and Design
+% Guillermo Gonzalez  Second Edition
+% Chapter3 Example 3.2.1
+
+% Input and Output  Matching Networks (given)
+
+Gamma_S = 0.5*exp(1i*pi*120/180);
+Gamma_L = 0.4*exp(1i*pi*90/180);
+
+%rho=abs(x); theta=angle(x); x=rho*exp(j*theta)
+
+% S Parameters of the Transistor (given)
+S11 = 0.6*exp(1i*pi*-160/180);
+S12 = 0.045*exp(1i*pi*16/180);
+S21 = 2.5*exp(1i*pi*30/180);
+S22 = 0.5*exp(1i*pi*-90/180);
+
+Gamma_IN = S11+(S12*S21*Gamma_L)/(1-S22*Gamma_L);
+[Gamma_INtheta, Gamma_INrho] = cart2pol(real(Gamma_IN), imag(Gamma_IN));
+Gamma_INtheta = Gamma_INtheta/pi*180;
+
+Gamma_OUT = S22+(S12*S21*Gamma_S)/(1-S11*Gamma_S);
+[Gamma_OUTtheta, Gamma_OUTrho] = cart2pol(real(Gamma_OUT), imag(Gamma_OUT));
+Gamma_OUTtheta = Gamma_OUTtheta/pi*180;
+
+% Transducer Power Gain
+GT = ((1-(abs(Gamma_S))^2)/((abs(1-Gamma_IN*Gamma_S))^2))*(abs(S21))^2*((1-(abs(Gamma_L))^2)/((abs(1-S22*Gamma_L))^2));
+GT_dB = 10*log10(GT);
+
+% (Operating) Power Gain
+GP = (1/(1-(abs(Gamma_IN))^2))*(abs(S21))^2*((1-(abs(Gamma_L))^2)/((abs(1-S22*Gamma_L))^2));
+GP_dB = 10*log10(GP);
+
+% Available Power Gain
+GA = ((1-(abs(Gamma_S))^2)/((abs(1-S11*Gamma_S))^2))*(abs(S21))^2*(1/(1-(abs(Gamma_OUT))^2));
+GA_dB = 10*log10(GA);
+
+% Source Mismatch Factor
+MS = ((1-(abs(Gamma_S))^2)*(1-(abs(Gamma_IN))^2))/((abs(1-Gamma_IN*Gamma_S))^2);
+MS_dB = 10*log10(MS);
+
+% Load Mismatch Factor
+ML = ((1-(abs(Gamma_L))^2)*(1-(abs(Gamma_OUT))^2))/((abs(1-Gamma_OUT*Gamma_L))^2);
+ML_dB = 10*log10(ML);
+
+E1 = 10*exp(1i*pi*0/180); % Voltage Source (given)
+Z1 = 50; % Generator Impedance (given)
+Z2 = 50; % End Impedance (given)
+
+% Power Available from Source
+P_AVS = (E1^2)/(8*real(Z1)); % Watts
+
+% Input Power
+P_IN = P_AVS*MS;
+
+% Power Delivered to Load
+P_L = GT*P_AVS; % Also, P_L = GP*P_IN
+
+% Power Available from Network
+P_AVN = P_L/ML; % Also, P_AVN = GA*P_AVS
+
+VSWR_in = (1+sqrt(1-MS))/(1-sqrt(1-MS));
+
+VSWR_out = (1+sqrt(1-ML))/(1-sqrt(1-ML));
